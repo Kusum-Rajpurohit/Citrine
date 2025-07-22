@@ -4,7 +4,7 @@
   "configurations": [
     {
       "name": "Launch Bootloader via .bat",
-      "type": "cppdbg",  // Dummy debugger type, VS Code requires one
+      "type": "cppdbg",  
       "request": "launch",
       "program": "${workspaceFolder}/bootloader.bin",
       "preLaunchTask": "Run Bootloader",
@@ -14,7 +14,7 @@
       "windows": {
         "preLaunchTask": "Run Bootloader"
       },
-      "miDebuggerPath": "gdb", // This line is only required to satisfy cppdbg
+      "miDebuggerPath": "gdb", 
       "setupCommands": []
     }
   ]
