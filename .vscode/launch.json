@@ -1,0 +1,21 @@
+// .vscode/launch.json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Bootloader via .bat",
+      "type": "cppdbg",  // Dummy debugger type, VS Code requires one
+      "request": "launch",
+      "program": "${workspaceFolder}/bootloader.bin",
+      "preLaunchTask": "Run Bootloader",
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "externalConsole": true,
+      "windows": {
+        "preLaunchTask": "Run Bootloader"
+      },
+      "miDebuggerPath": "gdb", // This line is only required to satisfy cppdbg
+      "setupCommands": []
+    }
+  ]
+}
