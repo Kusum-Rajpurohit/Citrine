@@ -108,16 +108,34 @@ strcmp_loop:
     lodsb                ; AL ← [SI], SI++
     mov bl, [di]         ; BL ← [DI]
     inc di
+
+    ; Convert both to lowercase if they are Uppercase
+    cmp al, 'A'
+    jb skip_lower_al
+    cmp al, 'Z'
+    ja skip_lower_al
+    or al, 0x20           ; convert to lowercase
+skip_lower_al:
+
+    cmp bl, 'A'
+    jb skip_lower_bl
+    cmp bl, 'Z'
+    ja skip_lower_bl
+    or bl, 0x20
+skip_lower_bl:
+
     cmp al, bl
     jne strcmp_not_equal
-    or al, al
+
+    or al, al             ; check for null terminator
     jnz strcmp_loop
-    mov al, 0            ; equal
+
+    mov al, 0             ; equal
     ret
 
 strcmp_not_equal:
     mov al, 1
-    ret 
+    ret
 
 ; -----------------------
 ; Subroutine: show_help
