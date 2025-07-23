@@ -17,24 +17,33 @@ after_msg:
 prompt:
     call print_prompt
     call read_input
+    call parse_input
 
-    ; Compare input with "help"
-    mov si, input_buffer
+    ; Compare command_buffer with "help"
+    mov si, command_buffer
     mov di, cmd_help
-    call strcmp 
+    call strcmp
     cmp al, 0
     je show_help
 
-    ; Compare input with "clear"
-    mov si, input_buffer
+    ; Compare command_buffer with "clear"
+    mov si, command_buffer
     mov di, cmd_clear
     call strcmp
     cmp al, 0
     je clear_screen
 
-    ; Unknown command fallback
+    ; Compare command_buffer with "echo"
+    mov si, command_buffer
+    mov di, cmd_echo
+    call strcmp
+    cmp al, 0
+    je do_echo
+
+    ; Unknown command
     call print_unknown
     jmp prompt
+
 
 ; -----------------------
 ; Subroutine: print_prompt
@@ -155,6 +164,22 @@ clear_screen:
     jmp prompt
 
 ; -----------------------
+; Subroutine: do_echo
+; -----------------------
+do_echo:
+    mov si, arg_buffer
+    call print_string
+
+    ; add newline after echo
+    mov ah, 0x0E
+    mov al, 0x0D
+    int 0x10
+    mov al, 0x0A
+    int 0x10
+    
+    jmp prompt
+
+; -----------------------
 ; Subroutine: print_unknown
 ; -----------------------
 print_unknown:
@@ -178,11 +203,50 @@ print_string_done:
     ret
 
 ; -----------------------
+; Subroutine: parse_input
+; Splits input_buffer into command and arg
+; -----------------------
+parse_input:
+    ; SI = source (input_buffer)
+    ; DI = command_buffer
+    mov si, input_buffer
+    mov di, command_buffer
+
+copy_command:
+    lodsb
+    cmp al, 0
+    je done
+    cmp al, ' '
+    je done
+    stosb
+    jmp copy_command
+
+done:
+    mov byte [di], 0        ; null-terminate command
+
+    ; Skip space
+    cmp al, ' '
+    jne skip_arg_copy
+    ; AL was ' ', SI is now at argument
+    mov di, arg_buffer
+copy_arg:
+    lodsb
+    stosb
+    cmp al, 0
+    jne copy_arg
+
+skip_arg_copy:
+    ret
+
+; -----------------------
 ; Data Section
 ; -----------------------
 msg         db 0x0D, 0x0A, "Welcome to the Shell!", 0x0D, 0x0A, 0
-help_msg    db "Supported commands: help, clear", 0x0D, 0x0A, 0
+help_msg    db "Supported commands: clear, echo, help", 0x0D, 0x0A, 0
 unknown_cmd db "Unknown command.", 0x0D, 0x0A, 0
 cmd_help    db "help", 0
 cmd_clear   db "clear", 0
+cmd_echo    db "echo", 0
 input_buffer db 128 dup(0)
+command_buffer db 32 dup(0)
+arg_buffer     db 96 dup(0)
